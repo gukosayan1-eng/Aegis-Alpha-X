@@ -1,0 +1,1 @@
+export class MigrationManager{constructor(kernel){this.kernel=kernel;this.adapters=[];}register(a){this.adapters.push(a);this.kernel.register(a);}async migrate(){await this.kernel.initialize();await this.kernel.engineManager.startAll();}}

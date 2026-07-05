@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Aegis Alpha X — Kernel 3.2 — Execution Calibration: less overblocking, aggression modes, practical paper execution.</title>
+  <link rel="stylesheet" href="./css/style.css" />
+  <script src="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <h1>Aegis Alpha X</h1>
+      <p>Kernel 3.2 — Execution Calibration: less overblocking, aggression modes, practical paper execution.</p>
+    </div>
+    <div id="systemStatus" class="status-pill">BOOTING</div>
+  </header>
+
+  <main class="layout">
+    <section class="left">
+      <div class="health-bar" id="healthBar"><span>Chart: <strong id="chartUpdated">—</strong></span><span>Scanner: <strong id="scannerUpdated">—</strong></span><span>Positions: <strong id="positionsUpdated">—</strong></span><span>History: <strong id="historyUpdated">—</strong></span></div>
+
+      <div class="metrics">
+        <div class="metric"><small>Balance</small><strong id="balance">$0.00</strong></div>
+        <div class="metric"><small>Equity</small><strong id="equity">$0.00</strong></div>
+        <div class="metric"><small>Unrealized</small><strong id="unrealized">$0.00</strong></div>
+        <div class="metric"><small>Open Trades</small><strong id="openCount">0</strong></div>
+        <div class="metric"><small>Position Value</small><strong id="positionValue">$0.00</strong></div>
+        <div class="metric"><small>Decision</small><strong id="latestDecision">WAIT</strong></div>
+      </div>
+
+      <section class="panel">
+        <div class="panel-title-row">
+          <h2>Live Chart</h2>
+          <div class="chart-controls">
+            <select id="chartSymbol">
+              <option>BTCUSDT</option>
+              <option>ETHUSDT</option>
+              <option>SOLUSDT</option>
+              <option>DOGEUSDT</option>
+              <option>XRPUSDT</option>
+              <option>AVAXUSDT</option>
+              <option>LINKUSDT</option>
+            </select>
+            <select id="timeframe">
+              <option value="1m">1m scalp</option>
+              <option value="3m">3m scalp</option>
+              <option value="5m" selected>5m intraday</option>
+              <option value="15m">15m intraday</option>
+              <option value="1h">1h swing</option>
+              <option value="2h">2h position</option>
+              <option value="4h">4h position</option>
+              <option value="1d">1D macro swing</option>
+              <option value="3d">3D macro position</option>
+            </select>
+            <button id="reloadChart" class="small-btn">Reload Chart</button>
+          </div>
+        </div>
+        <div id="priceChart" class="chart price"></div>
+        <div id="volumeChart" class="chart volume"></div>
+        <div id="rsiChart" class="chart rsi"></div>
+      </section>
+
+      <section class="panel"><h2>Adaptive Intelligence</h2><div id="adaptivePanel" class="reason-box">No adaptive decision yet.</div></section><section class="panel"><h2>Research Lab AI</h2><div class="button-grid"><button id="runResearchLab">Run Research Lab</button><button id="runCounterfactuals">Run Counterfactuals</button></div><div id="researchLabPanel" class="reason-box">No research lab output yet.</div></section><section class="panel">
+        <h2>Decision Council</h2>
+        <div id="councilGrid" class="council-grid"></div>
+      </section>
+
+      <section class="panel">
+        <h2>Scanner</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Pair</th>
+                <th>Price</th>
+                <th>Bias</th>
+                <th>Trend</th>
+                <th>Momentum</th>
+                <th>Volatility</th>
+                <th>Risk</th>
+                <th>Edge</th>
+                <th>Grade</th><th>Thesis</th><th>Decision</th>
+                <th>Execution</th>
+              </tr>
+            </thead>
+            <tbody id="scannerRows"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Open Positions</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Pair</th>
+                <th>Side</th>
+                <th>Entry</th>
+                <th>Current</th>
+                <th>SL</th>
+                <th>TP</th>
+                <th>Position</th>
+                <th>Margin</th>
+                <th>Risk $</th>
+                <th>Max Profit</th>
+                <th>Max DD</th>
+                <th>Alloc%</th>
+                <th>Age</th>
+                <th>Gross P/L</th><th>Fees</th><th>Net P/L</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="openRows"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Closed History</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Time</th>
+                <th>Pair</th>
+                <th>Side</th>
+                <th>Entry</th>
+                <th>Exit</th>
+                <th>Position</th>
+                <th>Margin</th>
+                <th>Risk $</th>
+                <th>Duration</th>
+                <th>P/L</th>
+                <th>Reason</th>
+                <th>Review</th>
+              </tr>
+            </thead>
+            <tbody id="historyRows"></tbody>
+          </table>
+        </div>
+      </section>
+    </section>
+
+    <aside class="right">
+      <section class="panel controls">
+        <h2>Controls</h2>
+        <label>Startup Amount</label>
+        <input id="startupAmount" type="number" value="300" min="1" />
+
+        <label>Base Risk %</label>
+        <input id="baseRisk" type="number" value="0.9" min="0.1" max="30" step="0.1" />
+
+        <label>Max Position % of Equity</label>
+        <input id="maxAllocation" type="number" value="60" min="1" max="100" />
+
+        <label>Max Leverage</label>
+        <input id="maxLeverage" type="number" value="20" min="1" max="50" />
+
+        <label>Max Open Trades</label>
+        <input id="maxOpenTrades" type="number" value="5" min="1" max="20" />
+
+        <label>Minimum Edge</label>
+        <input id="minimumEdge" type="number" value="72" min="1" max="100" />
+
+        <label>Trading Aggression</label>
+        <select id="aggressionMode">
+          <option value="conservative">Conservative</option>
+          <option value="balanced" selected>Balanced</option>
+          <option value="aggressive">Aggressive</option>
+          <option value="experimental">Experimental Paper Testing</option>
+        </select>
+
+        <label>Decision Mode</label>
+        <select id="consultationMode">
+          <option value="consultation" selected>Consultation Decision: AI chooses timeframe/style</option>
+          <option value="fixed">Fixed scanner timeframe</option>
+        </select>
+
+        <label>Max Binance Symbols To Scan</label>
+        <input id="maxUniverseSymbols" type="number" value="35" min="5" max="150" />
+
+        <label>Binance Futures Fee % per side</label>
+        <input id="feeRate" type="number" value="0.04" min="0" max="0.2" step="0.005" />
+
+        <label>Trade Monitor Seconds</label>
+        <input id="manageSeconds" type="number" value="1" min="1" max="10" />
+
+        <label>Scanner Timeframe</label>
+        <select id="scannerTimeframe">
+          <option value="1m">1m scalp</option>
+          <option value="3m">3m scalp</option>
+          <option value="5m" selected>5m intraday</option>
+          <option value="15m">15m intraday</option>
+          <option value="1h">1h swing</option>
+          <option value="2h">2h position</option>
+          <option value="4h">4h position</option>
+          <option value="1d">1D macro swing</option>
+          <option value="3d">3D macro position</option>
+        </select>
+
+        <label>Scan Interval Seconds</label>
+        <input id="scanInterval" type="number" value="10" min="3" max="300" />
+
+        <div class="button-grid">
+          <button id="applySettings">Apply Settings</button>
+          <button id="resetAccount">Reset Account</button>
+          <button id="startAgent">Start Agent</button>
+          <button id="stopAgent" class="danger">Stop Agent</button>
+          <button id="scanOnce">Scan Once</button>
+          <button id="closeAll">Close All</button>
+          <button id="bootstrapMemory">Bootstrap Memory</button>
+          <button id="manageNow">Manage Now</button>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Internal Monologue</h2>
+        <div id="monologue" class="monologue"></div>
+      </section>
+
+      
+      <section class="panel">
+        <h2>Research Mode</h2>
+        <p class="panel-note">Observation-first mode. It builds market DNA and memory without requiring trade execution.</p>
+        <div class="button-grid">
+          <button id="runResearchMode">Run Research Pass</button>
+          <button id="clearResearchNotes">Clear Notes</button>
+        </div>
+        <div id="researchModePanel" class="reason-box">No research pass yet.</div>
+      </section>
+
+      <section class="panel">
+        <h2>Learning Memory</h2>
+        <div id="memoryPanel" class="memory-panel"></div>
+      </section>
+
+      <section class="panel">
+        <h2>System Log</h2>
+        <div id="systemLog" class="log"></div>
+      </section>
+    </aside>
+  
+<section class="panel">
+  <h2>Kernel 4 Runtime</h2>
+  <div id="kernel4Status" class="reason-box">Kernel 4 bridge initializing...</div>
+</section>
+<script type="module">
+window.addEventListener("aegis:kernel4:event", (e) => {
+  const box = document.getElementById("kernel4Status");
+  if (!box || !window.AegisKernel4) return;
+  const health = window.AegisKernel4.health.snapshot();
+  box.textContent = `Status: ${window.AegisKernel4.status}\nEngines: ${health.engineCount}\nRunning: ${health.running}\nDegraded: ${health.degraded}\nLast Event: ${e.detail.type}`;
+});
+setInterval(() => {
+  const box = document.getElementById("kernel4Status");
+  if (!box || !window.AegisKernel4) return;
+  const health = window.AegisKernel4.health.snapshot();
+  box.textContent = `Status: ${window.AegisKernel4.status}\nEngines: ${health.engineCount}\nRunning: ${health.running}\nDegraded: ${health.degraded}`;
+}, 1000);
+</script>
+
+</main>
+
+  <script type="module" src="./js/app.js"></script>
+</body>
+</html>

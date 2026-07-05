@@ -1,0 +1,1 @@
+export const EngineRegistry={Trend:{id:"trend"},Liquidity:{id:"liquidity"},News:{id:"news"},Regime:{id:"regime"},Psychology:{id:"psychology"},Decision:{id:"decision"}};

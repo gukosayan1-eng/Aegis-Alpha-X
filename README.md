@@ -1,2 +1,1 @@
-# Aegis-Alpha-X
-Aegis-Alpha-X/ │ ├── main                 ← Stable version ├── kernel-4             ← Active development ├── docs/ ├── architecture/ ├── tests/ └── src/
+Kernel 4.0 Milestone 02 - Engine Migration

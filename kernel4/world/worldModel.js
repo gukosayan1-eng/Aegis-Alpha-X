@@ -1,0 +1,1 @@
+export class WorldModel{constructor(){this.model={market:{},portfolio:{},opportunities:[],hypotheses:[],regime:{},psychology:{},news:{},liquidity:{},knowledge:{}};}get(){return this.model;}update(s,d){this.model[s]={...this.model[s],...d};return this.model[s];}}

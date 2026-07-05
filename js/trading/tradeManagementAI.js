@@ -1,0 +1,4 @@
+export class TradeManagementAI {
+  evaluate(trade){const pnl=+(trade.pnl||0),maxProfit=+(trade.maxProfit||0),risk=Math.max(.01,+(trade.riskDollars||1));const ageMin=(Date.now()-(+trade.openedAt||Date.now()))/60000;if(maxProfit>=risk*1.2&&pnl<=maxProfit*.55)return{action:"CLOSE",reason:"TRAILING EXIT",note:"Trade gave back too much after strong MFE."};if(maxProfit>=risk*.65&&pnl<=maxProfit-risk*.35)return{action:"CLOSE",reason:"PROFIT PROTECTION",note:"Protecting profit after reversal."};if(ageMin>this.maxExpectedMinutes(trade.timeframe)&&pnl<risk*.25)return{action:"CLOSE",reason:"TIME DECAY EXIT",note:"Exceeded expected hold window."};return{action:"HOLD",reason:"THESIS ACTIVE",note:"No management exit."};}
+  maxExpectedMinutes(tf){return({"1m":15,"3m":30,"5m":70,"15m":200,"1h":760,"2h":1500,"4h":4320,"1d":20160,"3d":43200})[tf]||240;}
+}

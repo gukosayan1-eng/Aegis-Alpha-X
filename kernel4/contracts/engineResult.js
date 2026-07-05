@@ -1,0 +1,1 @@
+export function createEngineResult(engineId,data={}){return {engineId,timestamp:Date.now(),confidence:data.confidence??0,uncertainty:data.uncertainty??100,evidence:data.evidence??[],counterEvidence:data.counterEvidence??[],recommendation:data.recommendation??"WAIT",explanation:data.explanation??"",metrics:data.metrics??{},metadata:data.metadata??{}};}

@@ -1,0 +1,1 @@
+export const StateEvents={UPDATED:"state.updated",SNAPSHOT:"state.snapshot",RESTORED:"state.restored"};
