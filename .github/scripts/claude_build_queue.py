@@ -1,0 +1,126 @@
+#!/usr/bin/env python3
+
+import json
+import os
+from pathlib import Path
+
+import anthropic
+
+MODEL = "claude-3-5-sonnet-latest"
+
+QUEUE = Path("tasks/queue")
+DONE = Path("tasks/done")
+LOG = Path("docs/milestones/CLAUDE_BUILDS.md")
+
+
+def main():
+
+    tasks = sorted(QUEUE.glob("*.md"))
+
+    if not tasks:
+        print("No queued tasks.")
+        return
+
+    task = tasks[0]
+
+    client = anthropic.Anthropic(
+        api_key=os.environ["ANTHROPIC_API_KEY"]
+    )
+
+    system = """
+You are the implementation engineer for Aegis Alpha X.
+
+Return ONLY valid JSON.
+
+Format:
+
+{
+  "files":[
+    {
+      "path":"relative/file/path",
+      "content":"complete file contents"
+    }
+  ],
+  "summary":"short summary"
+}
+"""
+
+    response = client.messages.create(
+        model=MODEL,
+        max_tokens=8000,
+        system=system,
+        messages=[
+            {
+                "role": "user",
+                "content": task.read_text(encoding="utf-8")
+            }
+        ]
+    )
+
+    raw = ""
+
+    for block in response.content:
+        if block.type == "text":
+            raw += block.text
+
+    raw = raw.strip()
+
+    if raw.startswith("```"):
+        raw = raw.split("\n", 1)[1]
+        raw = raw.rsplit("```", 1)[0]
+
+    result = json.loads(raw)
+
+    for generated in result["files"]:
+
+        path = Path(generated["path"])
+
+        path.parent.mkdir(
+            parents=True,
+            exist_ok=True
+        )
+
+        path.write_text(
+            generated["content"],
+            encoding="utf-8"
+        )
+
+    DONE.mkdir(
+        parents=True,
+        exist_ok=True
+    )
+
+    task.rename(
+        DONE / task.name
+    )
+
+    LOG.parent.mkdir(
+        parents=True,
+        exist_ok=True
+    )
+
+    if not LOG.exists():
+
+        LOG.write_text(
+            "# Claude Build Log\n\n",
+            encoding="utf-8"
+        )
+
+    with LOG.open(
+        "a",
+        encoding="utf-8"
+    ) as log:
+
+        log.write(
+            f"## {task.name}\n"
+        )
+
+        log.write(
+            result["summary"] + "\n\n"
+        )
+
+    print("Claude task completed.")
+
+
+if __name__ == "__main__":
+    main()
